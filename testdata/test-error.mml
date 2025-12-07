@@ -1,0 +1,55 @@
+; ------------------------------------------------------------
+; test_err.mml - 代表的なエラーを起こすテスト
+; ------------------------------------------------------------
+
+; Syntax Error
+D C D Z E      ; Z は未定義コマンド → Syntax Error
+
+; Function Call Error
+D L64 C D E     ; L64 は許可されていない音長 → Function Call Error
+E G%327680
+
+; Function Call Error
+D C32. D E     ; 32. は許可されていない付点 → Invalid dotted length
+D D E8...      ; 8... は許可されていない付点 → Invalid dotted length
+
+; Function Call Error
+E M5,2 D         ; パラメータ不足
+F S5,3,3,3,3,3   ; パラメータ過多
+D O%5          ; 未定義値 → Missing octave
+D O+5          ; 未定義値 → Missing octave
+D O-5          ; 未定義値 → Missing octave
+D O4           ; 元に戻す
+
+; Octave Overflow Error
+D O0           ; オクターブ <1 → Octave out of range
+D O9           ; オクターブ >8 → Octave out of range
+D O8 C > D     ; O8 のあと上げる → Octave out of range
+D O1 C < B     ; O1 のあと下げる → Octave out of range
+D O4 C >5 D    ; O4 のあと 5上げる → Octave out of range
+D O4 C <4 B    ; O4 のあと4下げる → Octave out of range
+D O4           ; 元に戻す
+
+; Note Overflow Error
+D O8 _+12 C    ; 転調でオクターブ 9 にはみ出す → Note Overflow Error
+D O4           ; 元に戻す
+
+; Out of Nest Error
+D ]4           ; '['無しで ']' → Out of Nest Error
+
+; Duplicate Exit Error
+D [ C : D : E ]4   ; 同じネスト内に ':' が2回 → Duplicate Exit Error
+
+; Return within Nest Error
+D [ C D J E ]4     ; ネスト中に J → Return within Nest Error
+
+; Exit within Nest Error for X（仕様次第）
+D [ C D X E ]4     ; ネスト中の X → Exit within Nest Error
+
+; Out of Nest Error 
+D [C[D[E[F[G]5]4]3]2]1  ; '['']' のネストが深すぎる → Nest too deep
+
+; Close Nest Error
+D [ C D E         ; ']' が来ないままチャンネル終了 → Close Nest Error（終了時）
+E [ C [ D ]2      ; ']' が来ないままチャンネル終了 → Close Nest Error（終了時）
+F [C[[E:F]2[G]2]2 ; ']' が来ないままチャンネル終了 → Close Nest Error（終了時）
