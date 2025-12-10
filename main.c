@@ -144,8 +144,22 @@ main(int argc, char *argv[])
     while (fgets(line, sizeof(line), ifp) != NULL) {
         lineno++;
         char *p = line;
+
+        /* 行頭の空白とタブをスキップ */
         while (*p == ' ' || *p == '\t')
             p++;
+        /* 先頭が数字なら `[行番号] "` のオリジナルコンパイラ書式も読み飛ばす */
+        if (isdigit((int)(unsigned char)*p)) {
+            /* 行番号相当の数字を読み飛ばす (わざわざ値はチェックしない) */
+            while (isdigit((int)(unsigned char)*p))
+                p++;
+            /* 行番号後に空白をスキップ */
+            while (*p == ' ')
+                p++;
+            /* 二重引用符 `"` をスキップ */
+            if (*p == '"')
+                p++;
+        }
         ch = toupper((int)(unsigned char)*p);
         for (int i = 0; i < PSG_NCH; i++) {
             if (!x_disabled && ch == 'D' + i) {
