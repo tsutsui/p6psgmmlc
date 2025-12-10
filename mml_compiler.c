@@ -35,6 +35,7 @@ static int  get(MML_Compiler *c);
 static void skip_space(MML_Compiler *c);
 static int  parse_unsigned(MML_Compiler *c, int *out);
 static int  parse_signed(MML_Compiler *c, int *out);
+static int  sign_byte(int v);
 static void set_error(MML_Compiler *c, MML_Error e, const char *msg);
 static int  ensure_space(MML_Compiler *c, size_t need);
 static void emit_byte(MML_Compiler *c, uint8_t v);
@@ -221,6 +222,13 @@ parse_signed(MML_Compiler *c, int *out)
         return 0;
     *out = sign * v;
     return 1;
+}
+
+/* 符号付き1バイトをbit7を符号、bit6-0 を絶対値でエンコード */
+static int
+sign_byte(int v)
+{
+    return (v >= 0) ? v : (0x80 | -v);
 }
 
 /* エラー文字列と発生箇所を共通構造体にセット */
@@ -855,6 +863,7 @@ compile_command(MML_Compiler *c, int command)
                   "'M%%'コマンドの値が範囲外です (-127〜127)");
                 return;
             }
+            v = sign_byte(v);
             emit_byte(c, 0xFD);
             emit_byte(c, (uint8_t)v);
         } else {
@@ -879,6 +888,7 @@ compile_command(MML_Compiler *c, int command)
             (void)get(c);
             if (!parse_signed(c, &n4))
                 goto func_err;
+            n4 = sign_byte(n4);
             /* 範囲チェックはざっくり */
             emit_byte(c, 0xF5);
             emit_byte(c, (uint8_t)n1);
@@ -960,6 +970,7 @@ compile_command(MML_Compiler *c, int command)
         (void)get(c);
         if (!parse_signed(c, &n5))
             goto s_err;
+        n5 = sign_byte(n5);
 
         emit_byte(c, 0xEA);
         emit_byte(c, (uint8_t)n1);
@@ -1022,6 +1033,7 @@ compile_command(MML_Compiler *c, int command)
                   "'U%%'コマンドの値が範囲外です (-127〜127)");
                 return;
             }
+            v = sign_byte(v);
             emit_byte(c, 0xFB);
             emit_byte(c, (uint8_t)v);
         } else if (nxt == '+' || nxt == '-') {
