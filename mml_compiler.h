@@ -54,6 +54,9 @@ typedef struct {
     int saved_lp_len96;    /* L+音長 退避用 */
     int saved_octave;      /* オブジェクト上のオクターブ 退避用 */
     int saved_octave_last; /* 1つ前の音符のオクターブ 退避用 */
+
+    /* [] のネスト最初のオクターブがリピート時にズレることがある問題対応 */
+    bool loop_octave_emit;
 } MML_LoopState;
 
 #define MML_MAX_NEST 4

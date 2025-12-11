@@ -725,6 +725,12 @@ compile_command(MML_Compiler *c, int command)
         /* ここでは現在のオクターブを更新するだけ */
         /* 音符出力時にオクターブ変化していた時にオクターブコマンドを出力 */
         set_octave(c, v);
+
+        /* ループ先頭ではコンパイル時オクターブは確定できないので即時出力 */
+        if (c->nest_depth > 0 && !c->loops[c->nest_depth].loop_octave_emit) {
+            emit_octave(c, v);
+            c->loops[c->nest_depth].loop_octave_emit = true;
+        }
         break;
     }
     case '>': { /* オクターブをn上げる。n省略で1つ上げる (1〜8) */
@@ -1141,6 +1147,7 @@ compile_command(MML_Compiler *c, int command)
         ls->saved_lp_len96 = 0;
         ls->saved_octave = 0;
         ls->saved_octave_last = 0;
+        ls->loop_octave_emit = false;
         break;
     }
     case ']': { /* ネスト終了 */
@@ -1210,6 +1217,7 @@ compile_command(MML_Compiler *c, int command)
             c->octave_last = ls->saved_octave_last;
             ls->saved_octave_last = 0;
         }
+        ls->loop_octave_emit = false;
         break;
     }
     case ':': { /* ネスト脱出 */
