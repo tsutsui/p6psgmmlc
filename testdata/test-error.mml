@@ -53,4 +53,4 @@ D [C[D[E[F[G]5]4]3]2]1  ; '['']' のネストが深すぎる → Nest too deep
 ; Close Nest Error
 D [ C D E         ; ']' が来ないままチャンネル終了 → Close Nest Error（終了時）
 E [ C [ D ]2      ; ']' が来ないままチャンネル終了 → Close Nest Error（終了時）
-F [C[[E:F]2[G]2]2 ; ']' が来ないままチャンネル終了 → Close Nest Error（終了時）
+F [C[[E:F]2[G]2]2
