@@ -4,6 +4,7 @@
 
 ; Syntax Error
 D C D Z E      ; Z は未定義コマンド → Syntax Error
+1000 "E C D z E      ; z は未定義コマンド → Syntax Error
 
 ; Function Call Error
 D L64 C D E     ; L64 は許可されていない音長 → Function Call Error
