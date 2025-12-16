@@ -97,7 +97,8 @@ typedef struct {
 void mml_channel_init(MML_Compiler *c, uint8_t *out_buf, size_t out_size);
 
 /* 行単位チャンネル別コンパイル */
-MML_Error mml_compile_line(MML_Compiler *c, const char *src, int line_no);
+MML_Error mml_compile_line(MML_Compiler *c, const char *src, int start_col,
+    int line_no);
 
 /* チャンネル終了処理 */
 MML_Error mml_finish_channel(MML_Compiler *c);

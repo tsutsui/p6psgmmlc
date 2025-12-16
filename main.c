@@ -165,7 +165,10 @@ main(int argc, char *argv[])
             if (!x_disabled && ch == 'D' + i) {
                 psgch_t *psgchp = &psgch[i];
                 MML_Compiler *c = &psgchp->mmlcp;
-                error = mml_compile_line(c, p + 1, lineno);
+                char *src = p + 1;
+                size_t start_pos = (size_t)(src - line);
+                int start_col = (int)start_pos + 1;
+                error = mml_compile_line(c, src, start_col, lineno);
                 if (error != MML_OK) {
                     print_mmlc_error(c, line);
                     abort = true;

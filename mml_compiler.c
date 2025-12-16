@@ -107,13 +107,13 @@ mml_channel_init(MML_Compiler *c, uint8_t *out_buf, size_t out_size)
  *  line_no: コンパイル対象の行番号
  */
 MML_Error
-mml_compile_line(MML_Compiler *c, const char *src, int line_no)
+mml_compile_line(MML_Compiler *c, const char *src, int start_col, int line_no)
 {
     c->src  = src;
     c->len = strlen(src);
     c->pos  = 0;
     c->line = line_no;
-    c->col  = 1;
+    c->col  = start_col;
 
     c->error = MML_OK;
     c->error_col = NOERROR;
@@ -239,7 +239,7 @@ set_error(MML_Compiler *c, MML_Error e, const char *msg)
         c->error = e;
         if (msg) {
             if (c->error_col == NOERROR)
-                c->error_col = c->col;
+                c->error_col = c->col - 1;
             snprintf(c->error_msg, sizeof(c->error_msg),
               "%s (%d 行目, %d 桁目)",
               msg, c->line, c->error_col);
@@ -252,7 +252,7 @@ static int
 ensure_space(MML_Compiler *c, size_t need)
 {
     if (c->out_len + need > c->out_cap) {
-        c->error_col = c->col;
+        c->error_col = c->col - 1;
         set_error(c, MML_ERR_INTERNAL,
           "コンパイル結果出力サイズがバッファサイズを超えました");
         return 0;
@@ -408,7 +408,7 @@ parse_length_96(MML_Compiler *c, int *len96, uint8_t *flagp)
     int ch;
 
     parse_para(c, &flag, &value);
-    c->error_col = c->col;
+    c->error_col = c->col - 1;
     /* PARA_F_PLUS と PARA_F_MINUS は呼び出し側でチェック */
     if ((flag & PARA_F_PERCENT) != 0) {
         /* %n 音長直接指定 */
@@ -455,7 +455,7 @@ parse_length_96(MML_Compiler *c, int *len96, uint8_t *flagp)
 
     /* ドット処理: '.' が続く数を数える */
     int dots = 0;
-    c->error_col = c->col;
+    c->error_col = c->col - 1;
     for (;;) {
         skip_space(c);
         ch = peek(c);
@@ -620,7 +620,7 @@ compile_note(MML_Compiler *c, int note)
     int ch = toupper(note);
     int octave = c->octave;
     int tone;
-    c->error_col = c->col;
+    c->error_col = c->col - 1;
     if (ch == 'R') {
         tone = 0; /* rest */
     } else {
@@ -735,8 +735,8 @@ compile_command(MML_Compiler *c, int command)
     }
     case '>': { /* オクターブをn上げる。n省略で1つ上げる (1〜8) */
         int v;
+        c->error_col = c->col - 1;
         if (!parse_unsigned(c, &v)) {
-            c->error_col = c->col - 1;
             v = 1;
         }
         /* ここでは現在のオクターブを更新するだけ */
@@ -745,8 +745,8 @@ compile_command(MML_Compiler *c, int command)
     }
     case '<': { /* オクターブをn下げる。n省略で1つ下げる (1〜8) */
         int v;
+        c->error_col = c->col - 1;
         if (!parse_unsigned(c, &v)) {
-            c->error_col = c->col - 1;
             v = 1;
         }
         /* ここでは現在のオクターブを更新するだけ */
