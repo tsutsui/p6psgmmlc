@@ -1239,6 +1239,9 @@ compile_command(MML_Compiler *c, int command)
         break;
     }
     case ';': { /* コメント */
+        /* 最終行の mml_finish_channel() のエラー時の桁はコメント時点にする */
+        if (c->error == MML_OK)
+            c->error_col = c->col - 1;
         /* 残り行データをすべて読み捨てて return */
         while ((ch = peek(c)) >= 0 && ch != '\n')
             (void)get(c);
