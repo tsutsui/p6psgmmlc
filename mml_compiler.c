@@ -586,13 +586,6 @@ compile_statement(MML_Compiler *c)
     if (ch < 0)
         return;
 
-    if (ch == ';') {
-        /* コメント: 行末まで読み飛ばし */
-        while ((ch = get(c)) >= 0 && ch != '\n')
-            /* nothing */;
-        return;
-    }
-
     if (ch == '\n') {
         (void)get(c);
         return;
